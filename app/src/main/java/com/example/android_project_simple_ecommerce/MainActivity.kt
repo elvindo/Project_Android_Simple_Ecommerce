@@ -8,8 +8,7 @@ import com.example.android_project_simple_ecommerce.ui.navigation.AppNavHost
 import com.example.android_project_simple_ecommerce.viewmodel.ProductViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.hilt.navigation.compose.hiltViewModel
-
-
+import com.example.android_project_simple_ecommerce.ui.theme.Android_Project_Simple_EcommerceTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -18,7 +17,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val viewModel: ProductViewModel = hiltViewModel()
-            AppNavHost(navController, viewModel)
+
+            Android_Project_Simple_EcommerceTheme(
+                darkTheme = false,
+                dynamicColor = false
+            ) {
+                AppNavHost(navController, viewModel)
+            }
         }
     }
 }

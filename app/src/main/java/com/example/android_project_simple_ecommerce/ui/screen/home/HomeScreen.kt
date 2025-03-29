@@ -1,28 +1,13 @@
 package com.example.android_project_simple_ecommerce.ui.screen.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.example.android_project_simple_ecommerce.viewmodel.ProductViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,50 +23,74 @@ import com.example.android_project_simple_ecommerce.viewmodel.ProductViewModel
 fun HomeScreen(viewModel: ProductViewModel, navController: NavController) {
     val products = viewModel.productList
 
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text("Product List") },
-            actions = {
-                IconButton(onClick = {
-                    navController.navigate("cart")
-                }) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 34.dp), // Biar seimbang dengan ikon keranjang di kanan
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Product List")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate("cart")
+                    }) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                    }
                 }
-            }
-        )
-    }) {
-        LazyColumn(modifier = Modifier.padding(it)) {
+            )
+        }
+    ) { padding ->
+        LazyColumn(modifier = Modifier.padding(padding)) {
             items(products) { product ->
                 Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE0E0E0)
-                    ),
                     modifier = Modifier
-                        .padding(8.dp)
                         .fillMaxWidth()
-                        .height(120.dp)
-                        .clickable {
-                            navController.navigate("detail/${product.id}")
-                        }
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .clickable { navController.navigate("detail/${product.id}") },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp, vertical = 12.dp),
+                            .fillMaxWidth()
+                            .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(product.image),
-                            contentDescription = null,
-                            modifier = Modifier.size(84.dp)
+                        AsyncImage(
+                            model = product.image,
+                            contentDescription = product.title,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .padding(end = 12.dp)
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
+
                         Column(
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Text(product.title, fontWeight = FontWeight.Bold)
-                            Text("$ ${product.price}")
+                            Text(
+                                text = product.title,
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "$ ${product.price}",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
+
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowRight,
+                            contentDescription = "Details",
+                            tint = Color.Gray
+                        )
                     }
                 }
             }

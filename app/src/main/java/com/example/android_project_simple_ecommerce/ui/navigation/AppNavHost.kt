@@ -48,8 +48,7 @@ fun AppNavHost(navController: NavHostController, viewModel: ProductViewModel) {
             val cartViewModel: CartViewModel = hiltViewModel()
             CheckoutScreen(navController, cartViewModel)
         }
-
-        // success
+        // checkout
         composable("success") {
             SuccessScreen(navController)
         }

@@ -4,20 +4,27 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.android_project_simple_ecommerce.viewmodel.CartViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +39,7 @@ fun CheckoutScreen(
     var courier by remember { mutableStateOf("") }
     var paymentMethod by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     val courierOptions = listOf("JNE", "J&T", "SiCepat")
     val paymentOptions = listOf("M-Banking", "QRIS", "Transfer Bank")
@@ -39,32 +47,63 @@ fun CheckoutScreen(
     var courierExpanded by remember { mutableStateOf(false) }
     var paymentExpanded by remember { mutableStateOf(false) }
 
-    // Upload bukti pembayaran
-    val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+        imageUri = it
     }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Checkout") })
-        },
-        bottomBar = {
-            BottomAppBar {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    onClick = {
-                        cartViewModel.clearCart()
-                        navController.navigate("success")
+            TopAppBar(
+                title = {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text("Checkout", modifier = Modifier.padding(end = 42.dp))
                     }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            BottomAppBar(
+                tonalElevation = 2.dp,
+                modifier = Modifier.height(72.dp)
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Beli Sekarang")
+                    Text("Total: $ ${"%.2f".format(cartItems.sumOf { it.price * it.quantity })}")
+                    Button(
+                        onClick = {
+                            if (
+                                buyerName.isBlank() || address.isBlank() ||
+                                courier.isBlank() || paymentMethod.isBlank() || imageUri == null
+                            ) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Order data is incomplete")
+                                }
+                            } else {
+                                cartViewModel.clearCart()
+                                navController.navigate("success")
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .height(48.dp)
+                            .width(150.dp)
+                    ) {
+                        Text("Buy")
+                    }
                 }
             }
         }
@@ -75,37 +114,52 @@ fun CheckoutScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            OutlinedTextField(
-                value = buyerName,
-                onValueChange = { buyerName = it },
-                label = { Text("Nama Pembeli") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text(
+                "Order Data",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+            Spacer(Modifier.height(32.dp))
 
-            Spacer(Modifier.height(8.dp))
+            listOf(
+                "Name" to buyerName,
+                "Recipient Address" to address
+            ).forEachIndexed { index, pair ->
+                Text(text = pair.first, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
+                TextField(
+                    value = if (index == 0) buyerName else address,
+                    onValueChange = {
+                        if (index == 0) buyerName = it else address = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Gray
+                    )
+                )
+                Spacer(Modifier.height(24.dp))
+            }
 
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                label = { Text("Alamat Pembeli") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(8.dp))
-
+            Text("Delivery Courier", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
             ExposedDropdownMenuBox(
                 expanded = courierExpanded,
                 onExpandedChange = { courierExpanded = !courierExpanded }
             ) {
-                OutlinedTextField(
+                TextField(
                     value = courier,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Kurir Pengantaran") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = courierExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    placeholder = { Text("Select courier") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(courierExpanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Gray
+                    )
                 )
-
                 ExposedDropdownMenu(
                     expanded = courierExpanded,
                     onDismissRequest = { courierExpanded = false }
@@ -122,21 +176,25 @@ fun CheckoutScreen(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
-
+            Spacer(Modifier.height(24.dp))
+            Text("Payment Method", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
             ExposedDropdownMenuBox(
                 expanded = paymentExpanded,
                 onExpandedChange = { paymentExpanded = !paymentExpanded }
             ) {
-                OutlinedTextField(
+                TextField(
                     value = paymentMethod,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Metode Pembayaran") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = paymentExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    placeholder = { Text("Select a payment method") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(paymentExpanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Gray
+                    )
                 )
-
                 ExposedDropdownMenu(
                     expanded = paymentExpanded,
                     onDismissRequest = { paymentExpanded = false }
@@ -153,51 +211,54 @@ fun CheckoutScreen(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
-
-            OutlinedTextField(
+            Spacer(Modifier.height(24.dp))
+            Text("Notes (optional)", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
+            TextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Catatan Pembelian (opsional)") },
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 3
+                maxLines = 3,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Black,
+                    unfocusedIndicatorColor = Color.Gray
+                )
             )
 
-            Spacer(Modifier.height(16.dp))
-
-            // Upload Gambar
-            Text("Bukti Pembayaran")
-            Spacer(Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = {
-                    launcher.launch("image/*")
-                }) {
-                    Text("Pilih Gambar")
-                }
-
-                Spacer(Modifier.width(12.dp))
-
-                imageUri?.let {
+            Spacer(Modifier.height(24.dp))
+            Text("Proof of payment", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                    .clickable { launcher.launch("image/*") },
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageUri != null) {
                     Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = "Bukti Pembayaran",
-                        modifier = Modifier.size(80.dp)
+                        painter = rememberAsyncImagePainter(imageUri),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
+                } else {
+                    Text("Tap here to select image")
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
-
-            // Ringkasan
-            Text("Ringkasan Pesanan:")
-            cartItems.forEach {
-                Text("- ${it.title} (${it.quantity}x)")
+            Spacer(Modifier.height(24.dp))
+            Text("Order Summary:", fontWeight = FontWeight.Bold)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                    .padding(24.dp)
+            ) {
+                cartItems.forEach {
+                    Text("- ${it.title} (${it.quantity}x)", style = MaterialTheme.typography.bodyMedium)
+                }
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            Text("Total: Rp ${cartItems.sumOf { it.price * it.quantity }}")
         }
     }
 }

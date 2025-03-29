@@ -1,69 +1,132 @@
 package com.example.android_project_simple_ecommerce.ui.screen.detail
 
-import android.annotation.SuppressLint
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.android_project_simple_ecommerce.data.model.CartItem
 import com.example.android_project_simple_ecommerce.data.model.Product
 import com.example.android_project_simple_ecommerce.viewmodel.CartViewModel
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import com.example.android_project_simple_ecommerce.data.model.CartItem
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    product: Product,
     navController: NavController,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    product: Product
 ) {
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Detail Produk") })
-    }) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(product.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(product.title, fontWeight = FontWeight.Bold)
-            Text("$ ${product.price}")
-            Text(
-                text = product.description,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    cartViewModel.addToCart(
-                        CartItem(
-                            productId = product.id,
-                            title = product.title,
-                            price = product.price,
-                            image = product.image
-                        )
-                    )
-                    navController.popBackStack()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Product Detail")
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate("cart") }) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                    }
                 }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .align(Alignment.Center)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Tambah ke Keranjang")
+                AsyncImage(
+                    model = product.image,
+                    contentDescription = product.title,
+                    modifier = Modifier
+                        .height(240.dp)
+                        .fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = product.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "$ ${product.price}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = product.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Justify,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Tombol beli di bawah deskripsi
+                Button(
+                    onClick = {
+                        cartViewModel.addToCart(
+                            CartItem(
+                                productId = product.id,
+                                title = product.title,
+                                price = product.price,
+                                image = product.image
+                            )
+                        )
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Add to Cart")
+                }
             }
         }
     }
 }
-
