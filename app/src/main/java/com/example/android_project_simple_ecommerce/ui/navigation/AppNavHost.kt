@@ -19,12 +19,10 @@ fun AppNavHost(navController: NavHostController, viewModel: ProductViewModel) {
 
     NavHost(navController, startDestination = "home") {
 
-        // Home - daftar produk
         composable("home") {
             HomeScreen(viewModel, navController)
         }
 
-        // Detail produk
         composable("detail/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
             val product = viewModel.productList.find { it.id == productId }
@@ -37,22 +35,17 @@ fun AppNavHost(navController: NavHostController, viewModel: ProductViewModel) {
             }
         }
 
-        // Keranjang
         composable("cart") {
-            val cartViewModel: CartViewModel = hiltViewModel()
             CartScreen(navController = navController, cartViewModel = cartViewModel)
         }
 
-        // checkout
         composable("checkout") {
-            val cartViewModel: CartViewModel = hiltViewModel()
             CheckoutScreen(navController, cartViewModel)
         }
-        // checkout
+
         composable("success") {
             SuccessScreen(navController)
         }
-
-
     }
 }
+

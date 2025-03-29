@@ -5,8 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -116,6 +118,27 @@ fun CartScreen(
                             ) {
                                 Text(item.title, fontWeight = FontWeight.SemiBold)
                                 Text("$ ${item.price}", color = Color.Gray)
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    IconButton(onClick = {
+                                        cartViewModel.decreaseQuantity(item)
+                                    }) {
+                                        Icon(Icons.Default.Remove, contentDescription = "Kurangi")
+                                    }
+
+                                    Text(item.quantity.toString())
+
+                                    IconButton(onClick = {
+                                        cartViewModel.increaseQuantity(item)
+                                    }) {
+                                        Icon(Icons.Default.Add, contentDescription = "Tambah")
+                                    }
+                                }
                             }
 
                             IconButton(onClick = {

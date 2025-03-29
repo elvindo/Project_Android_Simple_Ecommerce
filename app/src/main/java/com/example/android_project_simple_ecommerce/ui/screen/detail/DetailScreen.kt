@@ -5,10 +5,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -28,6 +30,10 @@ fun DetailScreen(
     cartViewModel: CartViewModel,
     product: Product
 ) {
+    var quantity by remember { mutableStateOf(1) }
+
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -104,7 +110,27 @@ fun DetailScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Tombol beli di bawah deskripsi
+                // Quantity Selector
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(onClick = { if (quantity > 1) quantity-- }) {
+                        Icon(Icons.Default.Remove, contentDescription = "Kurangi")
+                    }
+                    Text(
+                        quantity.toString(),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    IconButton(onClick = { quantity++ }) {
+                        Icon(Icons.Default.Add, contentDescription = "Tambah")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 Button(
                     onClick = {
                         cartViewModel.addToCart(
@@ -112,7 +138,8 @@ fun DetailScreen(
                                 productId = product.id,
                                 title = product.title,
                                 price = product.price,
-                                image = product.image
+                                image = product.image,
+                                quantity = quantity
                             )
                         )
                         navController.popBackStack()
