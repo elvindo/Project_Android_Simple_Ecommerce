@@ -80,7 +80,7 @@ fun HomeScreen(viewModel: ProductViewModel, navController: NavController) {
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
                             Text(product.title, fontWeight = FontWeight.Bold)
-                            Text("Rp ${product.price}")
+                            Text("$ ${product.price}")
                         }
                     }
                 }

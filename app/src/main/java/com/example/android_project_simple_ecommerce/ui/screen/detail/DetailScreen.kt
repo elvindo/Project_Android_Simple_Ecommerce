@@ -41,7 +41,7 @@ fun DetailScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(product.title, fontWeight = FontWeight.Bold)
-            Text("Rp ${product.price}")
+            Text("$ ${product.price}")
             Text(
                 text = product.description,
                 style = MaterialTheme.typography.bodyMedium,

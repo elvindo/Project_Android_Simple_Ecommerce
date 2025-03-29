@@ -6,8 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.android_project_simple_ecommerce.ui.screen.cart.CartScreen
+import com.example.android_project_simple_ecommerce.ui.screen.checkout.CheckoutScreen
 import com.example.android_project_simple_ecommerce.ui.screen.detail.DetailScreen
 import com.example.android_project_simple_ecommerce.ui.screen.home.HomeScreen
+import com.example.android_project_simple_ecommerce.ui.screen.success.SuccessScreen
 import com.example.android_project_simple_ecommerce.viewmodel.CartViewModel
 import com.example.android_project_simple_ecommerce.viewmodel.ProductViewModel
 
@@ -40,6 +42,18 @@ fun AppNavHost(navController: NavHostController, viewModel: ProductViewModel) {
             val cartViewModel: CartViewModel = hiltViewModel()
             CartScreen(navController = navController, cartViewModel = cartViewModel)
         }
+
+        // checkout
+        composable("checkout") {
+            val cartViewModel: CartViewModel = hiltViewModel()
+            CheckoutScreen(navController, cartViewModel)
+        }
+
+        // success
+        composable("success") {
+            SuccessScreen(navController)
+        }
+
 
     }
 }
