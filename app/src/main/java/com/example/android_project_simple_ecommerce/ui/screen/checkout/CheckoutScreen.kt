@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.android_project_simple_ecommerce.viewmodel.CartViewModel
 import kotlinx.coroutines.launch
@@ -42,7 +43,14 @@ fun CheckoutScreen(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     val courierOptions = listOf("JNE", "J&T", "SiCepat")
-    val paymentOptions = listOf("M-Banking", "QRIS", "Transfer Bank")
+    val paymentOptions = listOf("QRIS", "Transfer Bank")
+
+    val bankList = listOf(
+        "BCA - 1234567890",
+        "BNI - 9876543210",
+        "BRI - 1122334455"
+    )
+    val qrisImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=QRIS-123456"
 
     var courierExpanded by remember { mutableStateOf(false) }
     var paymentExpanded by remember { mutableStateOf(false) }
@@ -208,6 +216,28 @@ fun CheckoutScreen(
                             }
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            when (paymentMethod) {
+                "Transfer Bank" -> {
+                    Text("Bank Accounts:", fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    bankList.forEach {
+                        Text(it, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                "QRIS" -> {
+                    Text("Scan QRIS:", fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    AsyncImage(
+                        model = qrisImageUrl,
+                        contentDescription = "QRIS Code",
+                        modifier = Modifier
+                            .height(150.dp)
+                            .fillMaxWidth()
+                    )
                 }
             }
 

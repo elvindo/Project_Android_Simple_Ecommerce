@@ -1,5 +1,6 @@
 package com.example.android_project_simple_ecommerce.ui.navigation
 
+import HomeScreen
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -8,7 +9,6 @@ import androidx.navigation.compose.composable
 import com.example.android_project_simple_ecommerce.ui.screen.cart.CartScreen
 import com.example.android_project_simple_ecommerce.ui.screen.checkout.CheckoutScreen
 import com.example.android_project_simple_ecommerce.ui.screen.detail.DetailScreen
-import com.example.android_project_simple_ecommerce.ui.screen.home.HomeScreen
 import com.example.android_project_simple_ecommerce.ui.screen.success.SuccessScreen
 import com.example.android_project_simple_ecommerce.viewmodel.CartViewModel
 import com.example.android_project_simple_ecommerce.viewmodel.ProductViewModel
