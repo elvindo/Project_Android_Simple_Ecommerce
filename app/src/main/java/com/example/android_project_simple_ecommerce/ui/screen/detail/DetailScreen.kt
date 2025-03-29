@@ -42,6 +42,11 @@ fun DetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(product.title, fontWeight = FontWeight.Bold)
             Text("Rp ${product.price}")
+            Text(
+                text = product.description,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
